@@ -2,6 +2,7 @@ package states.storyMenuState;
 
 import openfl.utils.Assets;
 
+import flixel.FlxG;
 import flixel.group.FlxGroup;
 import flixel.graphics.FlxGraphic;
 
@@ -14,6 +15,7 @@ import substates.ResetScoreSubState;
 import games.backend.WeekData;
 import games.backend.Highscore;
 import games.backend.Song;
+import general.shaders.CustomShaders;
 
 import states.mainMenuState.MainMenuState;
 import states.freeplayState.FreeplayState;
@@ -30,6 +32,7 @@ class StoryMenuState extends MusicBeatState
 
 	var txtWeekTitle:FlxText;
 	var bgSprite:FlxSprite;
+	var storyMenuGlitch:GlitchShader;
 
 	private static var curWeek:Int = 0;
 
@@ -84,6 +87,7 @@ class StoryMenuState extends MusicBeatState
 		var bgYellow:FlxSprite = new FlxSprite(0, 56).makeGraphic(FlxG.width, 386, 0xFFF9CF51);
 
 		bgSprite = new FlxSprite(0, 56);
+		add(bgSprite);
 
 		grpWeekText = new FlxTypedGroup<MenuItem>();
 		add(grpWeekText);
@@ -173,8 +177,6 @@ class StoryMenuState extends MusicBeatState
 		difficultySelectors.add(rightArrow);
 
 		add(bgYellow);
-
-		add(bgSprite);
 
 		add(grpWeekCharacters);
 
@@ -284,6 +286,9 @@ class StoryMenuState extends MusicBeatState
 			movedBack = true;
 			MusicBeatState.switchState(new MainMenuState());
 		}
+
+		if (storyMenuGlitch != null)
+			storyMenuGlitch.data.uTime.value[0] += elapsed;
 
 		super.update(elapsed);
 
@@ -449,10 +454,24 @@ class StoryMenuState extends MusicBeatState
 		if (assetName == null || assetName.length < 1)
 		{
 			bgSprite.visible = false;
+			bgSprite.shader = null;
+			storyMenuGlitch = null;
+		}
+		else if (assetName == "slide")
+		{
+			bgSprite.loadGraphic(Paths.image('purpleskystorymenu'));
+			storyMenuGlitch = new GlitchShader();
+			storyMenuGlitch.data.uTime.value = [0];
+			storyMenuGlitch.data.uSpeed.value = [1.0];
+			storyMenuGlitch.data.uFrequency.value = [4.0];
+			storyMenuGlitch.data.uWaveAmplitude.value = [4.0];
+			bgSprite.shader = storyMenuGlitch;
 		}
 		else
 		{
 			bgSprite.loadGraphic(Paths.image('menubackgrounds/menu_' + assetName));
+			bgSprite.shader = null;
+			storyMenuGlitch = null;
 		}
 		PlayState.storyWeek = curWeek;
 

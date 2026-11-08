@@ -171,7 +171,7 @@ class LoadingState extends MusicBeatState
 					loader.soundsToPrepare = [];
 					loader.musicToPrepare = [];
 					loader.songsToPrepare = [];
-					if (loader.loadThread != null) loader.loadThread.cancel(); // kill all workers safely
+					// lime 8.x removed ThreadPool.cancel
 					loader.loadThread = null;
 					break;
 				}
@@ -332,7 +332,7 @@ class LoadingState extends MusicBeatState
 		requestedBitmaps.clear();
 
 		if (loadThread != null) {
-			loadThread.cancel();
+			// lime 8.x removed ThreadPool.cancel
 			loadThread = null;
 		}
 		if (prepareEvent != null) {
@@ -381,7 +381,7 @@ class LoadingState extends MusicBeatState
 		loaded = 0;
 
 		//trace('LoadingState: startThreads, loadMax: $loadMax');
-		loadThread = new ThreadPool(ClientPrefs.data.loadThreads, ClientPrefs.data.loadThreads, MULTI_THREADED);
+		loadThread = new ThreadPool(ClientPrefs.data.loadThreads, ClientPrefs.data.loadThreads);
 		threadInit();
 
 		for (sound in soundsToPrepare)
@@ -444,6 +444,34 @@ class LoadingState extends MusicBeatState
 	}
 
 	function threadInit():Void {
+		loadThread.onRun.add(function(state:{func:Void->Dynamic}):Void {
+			try {
+				var result:Dynamic = state.func();
+
+				if (result.error == null) {
+					switch (result.type) {
+						case 'sound', 'song', 'music':
+							if ((Reflect.hasField(result, "file") && result.file != null)) 
+							{
+								loadThread.sendComplete({type:result.type, path: result.path, file: result.file, error: result.error});
+							} else {
+								loadThread.sendError({type:result.type, path: result.path, error:null});
+							}
+						case 'image':
+							if ((Reflect.hasField(result, "file") && result.file != null) || 
+								(Reflect.hasField(result, "alreadyLoaded") && result.alreadyLoaded)) 
+							{
+								loadThread.sendComplete({type:result.type, path: result.path, file: result.file, alreadyLoaded: result.alreadyLoaded, error: result.error});
+							} else {
+								loadThread.sendError({type:result.type, path: result.path, error:null});
+							}
+					}
+				}
+				else loadThread.sendError({type:result.type, path: result.path, error: result.error});
+			} catch (e:Dynamic) {
+				loadThread.sendError({type: 'system', path:null, error: e});
+			}
+		});
 		loadThread.onComplete.add(function(msg:{type:String, path:String, file:Dynamic, alreadyLoaded:Bool, error:Dynamic}) {
 			switch (msg.type) {
 				case 'sound', 'song', 'music':
@@ -471,36 +499,7 @@ class LoadingState extends MusicBeatState
 	}
 
 	function threadWork(func:Void->Dynamic):Void {
-		loadThread.run(sendThreadData, {func: func});
-	}
-
-	static function sendThreadData(state:{func:Void->Dynamic}, out:WorkOutput):Void {
-		try {
-			var result:Dynamic = state.func();
-
-			if (result.error == null) {
-				switch (result.type) {
-					case 'sound', 'song', 'music':
-						if ((Reflect.hasField(result, "file") && result.file != null)) 
-						{
-							out.sendComplete({type:result.type, path: result.path, file: result.file, error: result.error});
-						} else {
-							out.sendError({type:result.type, path: result.path, error:null});
-						}
-					case 'image':
-						if ((Reflect.hasField(result, "file") && result.file != null) || 
-							(Reflect.hasField(result, "alreadyLoaded") && result.alreadyLoaded)) 
-						{
-							out.sendComplete({type:result.type, path: result.path, file: result.file, alreadyLoaded: result.alreadyLoaded, error: result.error});
-						} else {
-							out.sendError({type:result.type, path: result.path, error:null});
-						}
-				}
-			}
-			else out.sendError({type:result.type, path: result.path, error: result.error});
-		} catch (e:Dynamic) {
-			out.sendError({type: 'system', path:null, error: e});
-		}
+		loadThread.queue({func: func});
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
