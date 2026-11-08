@@ -118,8 +118,8 @@ class StrumNote extends FlxSprite
 
 			var noteAnimInt = getAnimSet(getIndex(mania, noteData)).pixel;
 
-			//animation.add('circle', [11]);
-			//animation.add('rombus', [10]);
+			animation.add('circle', [11]);
+			animation.add('rombus', [10]);
 			animation.add('red', [9]);
 			animation.add('green', [8]);
 			animation.add('blue', [7]);
@@ -137,6 +137,8 @@ class StrumNote extends FlxSprite
 			animation.addByPrefix('blue', 'arrowDOWN');
 			animation.addByPrefix('purple', 'arrowLEFT');
 			animation.addByPrefix('red', 'arrowRIGHT');
+			animation.addByPrefix('rombus', 'arrowROMBUS');
+			animation.addByPrefix('circle', 'arrowCIRCLE');
 
 			initialWidth = width;	//我勒个一行造成死循环————卡昔233
 
