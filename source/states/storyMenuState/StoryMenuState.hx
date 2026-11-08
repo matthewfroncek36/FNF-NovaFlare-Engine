@@ -86,7 +86,7 @@ class StoryMenuState extends MusicBeatState
 		var ui_tex = Paths.getSparrowAtlas('campaign_menu_UI_assets');
 		var bgYellow:FlxSprite = new FlxSprite(0, 56).makeGraphic(FlxG.width, 386, 0xFFF9CF51);
 
-		bgSprite = new FlxSprite(0, 56);
+		bgSprite = new FlxSprite(0, 0);
 		add(bgSprite);
 
 		grpWeekText = new FlxTypedGroup<MenuItem>();
@@ -459,18 +459,28 @@ class StoryMenuState extends MusicBeatState
 		}
 		else if (assetName == "slide")
 		{
-			bgSprite.loadGraphic(Paths.image('purpleskystorymenu'));
 			storyMenuGlitch = new GlitchShader();
 			storyMenuGlitch.data.uTime.value = [0];
 			storyMenuGlitch.data.uSpeed.value = [1.0];
 			storyMenuGlitch.data.uFrequency.value = [4.0];
 			storyMenuGlitch.data.uWaveAmplitude.value = [4.0];
+			bgSprite.loadGraphic(Paths.image('purplesky1'));
+			bgSprite.x = -1200;
+			bgSprite.y = -800;
+		    bgSprite.scale.set(4, 4);
 			bgSprite.shader = storyMenuGlitch;
+			var bgSprite2:FlxSprite = new FlxSprite(0, 0);
+			bgSprite2.loadGraphic(Paths.image('purplesky1'));
+			bgSprite2.x = -1200;
+			bgSprite2.y = -800;
+		    bgSprite2.scale.set(3.5, 3.5);
+			bgSprite2.shader = storyMenuGlitch;
 		}
 		else
 		{
 			bgSprite.loadGraphic(Paths.image('menubackgrounds/menu_' + assetName));
 			bgSprite.shader = null;
+			bgSprite.y = 56;
 			storyMenuGlitch = null;
 		}
 		PlayState.storyWeek = curWeek;
