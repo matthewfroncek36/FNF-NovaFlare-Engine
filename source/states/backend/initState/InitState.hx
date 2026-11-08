@@ -126,7 +126,7 @@ class InitState extends MusicBeatState
 
 		var maxTextureSize:Int = GL.getParameter(GL.MAX_TEXTURE_SIZE);
 		trace('maxTextureSize: ' + maxTextureSize);
-		// lime 8.x removed Image.setMaxTextureSize
+		Image.setMaxTextureSize(maxTextureSize);
 
 		trace("GL_VENDOR=" + GL.getString(GL.VENDOR));
 		trace("GL_RENDERER=" + GL.getString(GL.RENDERER));
