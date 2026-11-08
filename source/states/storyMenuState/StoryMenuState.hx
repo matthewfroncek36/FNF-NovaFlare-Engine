@@ -467,12 +467,14 @@ class StoryMenuState extends MusicBeatState
 			bgSprite.loadGraphic(Paths.image('purplesky1'));
 			bgSprite.x = -1200;
 			bgSprite.y = -800;
+			bgSprite.antialiasing = false;
 		    bgSprite.scale.set(4, 4);
 			bgSprite.shader = storyMenuGlitch;
 			var bgSprite2:FlxSprite = new FlxSprite(0, 0);
 			bgSprite2.loadGraphic(Paths.image('purplesky1'));
 			bgSprite2.x = -1200;
 			bgSprite2.y = -800;
+			bgSprite2.antialiasing = false;
 		    bgSprite2.scale.set(3.5, 3.5);
 			bgSprite2.shader = storyMenuGlitch;
 		}
